@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Chrome</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#202124">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body, html {
+            height: 100%;
+            font-family: Roboto, Helvetica, Arial, sans-serif;
+            background-color: #202124;
+            color: #e8eaed;
+            overflow: hidden;
+        }
+        /* Fake Chrome UI */
+        .chrome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .logo {
+            width: 160px;
+            margin-bottom: 30px;
+        }
+        .search-bar {
+            width: 100%;
+            max-width: 500px;
+            height: 52px;
+            background-color: #303134;
+            border: 1px solid #3c4043;
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+        }
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            fill: #9aa0a6;
+            margin-right: 12px;
+        }
+        .placeholder-text {
+            color: #9aa0a6;
+            font-size: 16px;
+        }
+        
+        /* Prank Overlay Screen */
+        .prank-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease-in;
+        }
+        .prank-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+            animation: flash red 0.4s ease-out;
+        }
+        .ghost-eyes {
+            width: 180px;
+            height: auto;
+            margin-bottom: 40px;
+            filter: drop-shadow(0 0 15px #ff0000);
+            animation: pulse 1.5s infinite;
+        }
+        .warning-text {
+            color: #ff3333;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            padding: 0 20px;
+            line-height: 1.4;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+        
+        /* Animations */
+        @keyframes flash {
+            0% { background-color: #fff; }
+            50% { background-color: #ff0000; }
+            100% { background-color: #000; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fake Chrome Home Screen -->
+    <div class="chrome-container" id="chromeUI">
+        <!-- Official Google Logo Link -->
+        <img class="logo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png" alt="Google">
+        <div class="search-bar">
+            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <div class="placeholder-text">Search or type URL</div>
+        </div>
+    </div>
+
+    <!-- The Prank Screen -->
+    <div class="prank-overlay" id="prankScreen">
+        <!-- Scary stylized glowing eye vector -->
+        <svg class="ghost-eyes" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 25C15 25 25 10 35 20C45 30 25 40 15 25Z" fill="#ff0000"/>
+            <path d="M85 25C85 25 75 10 65 20C55 30 75 40 85 25Z" fill="#ff0000"/>
+            <circle cx="28" cy="22" r="4" fill="black"/>
+            <circle cx="72" cy="22" r="4" fill="black"/>
+        </svg>
+        <div class="warning-text">
+            Bhoot hooga ab<br>
+            I'm watching your activity!
+        </div>
+    </div>
+
+    <!-- Audio element using a built-in browser synth fallback if no audio file is provided -->
+    <script>
+        const chromeUI = document.getElementById('chromeUI');
+        const prankScreen = document.getElementById('prankScreen');
+        let triggered = false;
+
+        function triggerPrank() {
+            if (triggered) return;
+            triggered = true;
+
+            // Try to trigger mobile vibration if supported
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 500]);
+            }
+
+            // Play a scary synth frequency sound directly from the browser (no external files needed)
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Low ominous rumble
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(80, audioCtx.currentTime); 
+                oscillator.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 1.5);
+                
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 1.5);
+
+                // High pitch screech
+                const screech = audioCtx.createOscillator();
+                const screechGain = audioCtx.createGain();
+                screech.type = 'triangle';
+                screech.frequency.setValueAtTime(600, audioCtx.currentTime);
+                screech.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.8);
+                screechGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                screechGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+                
+                screech.connect(screechGain);
+                screechGain.connect(audioCtx.destination);
+                screech.start();
+                screech.stop(audioCtx.currentTime + 0.8);
+
+            } catch(e) {
+                console.log("Audio contexts blocked or unsupported");
+            }
+
+            // Show the scary screen
+            prankScreen.classList.add('active');
+        }
+
+        // Trigger on click/tap anywhere on the UI
+        chromeUI.addEventListener('click', triggerPrank);
+        chromeUI.addEventListener('touchstart', triggerPrank);
+
+        // Register a dummy service worker so the mobile browser allows true "Install to Home Screen"
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript,console.log("SW Registered");');
+        }
+    </script>
+</body>
+</html>
