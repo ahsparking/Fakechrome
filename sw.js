@@ -1,14 +1,18 @@
-// This file allows Chrome to install the website as a true standalone app
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open('chrome-prank-v1').then((cache) => {
+      return cache.addAll([
+        'index.html',
+        'manifest.json'
+      ]);
+    })
+  );
 });
 
-self.addEventListener('activate', (e) => {
-  return self.clients.claim();
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
 });
-
-self.addEventListener('fetch', (e) => {
-  // Keeps the app working seamlessly offline/online
-  e.respondWith(fetch(e.request));
-});
-
